@@ -31,11 +31,13 @@ git clone https://github.com/hchhatpar-home/disaster_response_pipeline.git
 
         `python data/process_data.py data/disaster_messages.csv data/disaster_categories.csv data/disaster_response_db.db`
 
-2. Load the data from DB, train classifier and save the model
+2. Load the data from DB, train classifier and save the model:
+
         `python models/train_classifier.py data/disaster_response_db.db models/message_classifier.pkl`
 
-3. Run the following command in the app's directory to run your web app.
-    `python run.py`
+3. Run the following command in the app's directory to run your web app:
+
+        `python run.py`
 
 4. Go to http://0.0.0.0:3001/
 
@@ -50,7 +52,7 @@ git clone https://github.com/hchhatpar-home/disaster_response_pipeline.git
 
 ![Message_Genres](screenshots/message_distribution.png)
 
-![Message_Categories](screenshots/process_data.png)
+![Message_Categories](screenshots/message_categories.png)
 
 ![Top 5 Messages](screenshots/top5_messages.png)
 
