@@ -1,6 +1,8 @@
 import json
 import plotly
 import pandas as pd
+import sklearn.externals
+import joblib
 
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
@@ -8,7 +10,6 @@ from nltk.tokenize import word_tokenize
 from flask import Flask
 from flask import render_template, request, jsonify
 from plotly.graph_objs import Bar
-from sklearn.externals import joblib
 from sqlalchemy import create_engine
 
 
@@ -26,11 +27,11 @@ def tokenize(text):
     return clean_tokens
 
 # load data
-engine = create_engine('sqlite:///../data/YourDatabaseName.db')
-df = pd.read_sql_table('YourTableName', engine)
+engine = create_engine('sqlite:///../data/disaster_response_db.db')
+df = pd.read_sql_table('message_categories', engine)
 
 # load model
-model = joblib.load("../models/your_model_name.pkl")
+model = joblib.load("../models/message_classifier.pkl")
 
 
 # index webpage displays cool visuals and receives user input text for model
@@ -42,7 +43,19 @@ def index():
     # TODO: Below is an example - modify to extract data for your own visuals
     genre_counts = df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)
-    
+
+    category_names = df.iloc[:,4:].columns
+    category_boolean = (df.iloc[:,4:] != 0).sum().values
+
+    categories = df.drop(columns = ['id', 'message', 'original', 'genre'])
+    rowsums = categories.sum(axis=1)
+    multilabel_counts = rowsums.value_counts().sort_index()
+    multi_labels, multi_label_counts = multilabel_counts.index, multilabel_counts.values
+
+    viz_1 = pd.DataFrame(df.iloc[:,4:].mean(), columns = ['Val']).sort_values('Val', ascending = False).iloc[:5,:]
+    top_5_vals = viz_1['Val']
+    top_5_cols = list(viz_1.index) 
+
     # create visuals
     # TODO: Below is an example - modify to create your own visuals
     graphs = [
@@ -63,7 +76,47 @@ def index():
                     'title': "Genre"
                 }
             }
-        }
+        },
+            # GRAPH 2 - category graph
+        {
+            'data': [
+                Bar(
+                    x=category_names,
+                    y=category_boolean
+                )
+            ],
+
+            'layout': {
+                'title': 'Distribution of Message Categories',
+                'yaxis': {
+                    'title': "Count"
+                },
+                'xaxis': {
+                    'title': "Category",
+                    'tickangle': 35
+                }
+            }
+        },
+       {
+            'data': [
+                Bar(
+                    x=top_5_cols,
+                    y=top_5_vals
+                )
+            ],
+
+            'layout': {
+                'title': 'Top 5 Message Types',
+                'yaxis': {
+                    'title': "Percentage"
+                },
+                'xaxis': {
+                    'title': "Message Type"
+                }
+            }
+        } 
+
+
     ]
     
     # encode plotly graphs in JSON
