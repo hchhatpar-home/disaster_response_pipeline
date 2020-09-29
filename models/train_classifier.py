@@ -56,10 +56,10 @@ def load_data(database_filepath):
     df = pd.read_sql_table('message_categories',engine)
     
     #Remove child alone as it has all zeros only
-    df = df.drop(['child_alone'],axis=1)
+    #df = df.drop(['child_alone'],axis=1)
    
     # convert 2 to 1 (majority) in related 
-    df['related']=df['related'].map(lambda x: 1 if x == 2 else x)
+    #df['related']=df['related'].map(lambda x: 1 if x == 2 else x)
     
     X = df['message']
     y = df.iloc[:,4:]
@@ -120,8 +120,17 @@ def build_pipeline():
 
         ('classifier', MultiOutputClassifier(AdaBoostClassifier()))
     ])
+
+   # Improve with GridSearch
+
+
+    parameters = {
+     'classifier__estimator__n_estimators': [50, 100, 200 ]
+    }
+
+    cv = GridSearchCV(pipeline1, parameters, n_jobs=-1)
     
-    return pipeline1
+    return cv
 
 def average_classification_report (y_true, y_pred): 
     """ Calculates mean score for each class from classification report as a measure of the model

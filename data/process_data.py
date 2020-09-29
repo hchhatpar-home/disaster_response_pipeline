@@ -72,6 +72,13 @@ def clean_data(df):
 
     #Drop Duplicates
     df.drop_duplicates(inplace=True)
+
+    #Remove child alone as it has all zeros only
+    df = df.drop(['child_alone'],axis=1)
+
+    # convert 2 to 1 (majority) in related 
+    df['related']=df['related'].map(lambda x: 1 if x == 2 else x)
+
     
     return df
 
